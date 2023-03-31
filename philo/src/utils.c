@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:31:51 by avast             #+#    #+#             */
-/*   Updated: 2023/03/31 11:24:48 by avast            ###   ########.fr       */
+/*   Updated: 2023/03/31 18:32:27 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,10 +48,10 @@ int	ft_atoi(const char *nptr)
 	return ((int)(n * sign));
 }
 
-long	get_time(void)
+long long	get_time(void)
 {
 	struct timeval	tp;
-	long			milliseconds;
+	long long		milliseconds;
 
 	gettimeofday(&tp, NULL);
 	milliseconds = tp.tv_sec * 1000;
@@ -59,8 +59,34 @@ long	get_time(void)
 	return (milliseconds);
 }
 
-void	free_data(t_data data, t_philo *philo)
+void	printf_msg(int type, t_philo *philo)
+{
+	if (type != DIED && !philo->data->flag_death)
+	{
+		pthread_mutex_lock(&(philo->data->lock_printf));
+		printf("%lld ", get_time() - philo->data->start_time);
+		printf("%d ", philo->index + 1);
+		if (type == FORK)
+			printf("has taken a fork\n");
+		else if (type == EATING)
+			printf("is eating\n");
+		else if (type == SLEEPING)
+			printf("is sleeping\n");
+		else if (type == THINKING)
+			printf("is thinking\n");
+		pthread_mutex_unlock(&(philo->data->lock_printf));
+	}
+	else if (type == DIED)
+	{
+		pthread_mutex_lock(&(philo->data->lock_printf));
+		printf("%lld ", get_time() - philo->data->start_time);
+		printf("%d died\n", philo->index + 1);
+		pthread_mutex_unlock(&(philo->data->lock_printf));
+	}
+}
+
+void	free_data(t_data data)
 {
 	free(data.lock_fork);
-	free(philo);
+	free(data.philo);
 }

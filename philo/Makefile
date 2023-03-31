@@ -6,15 +6,15 @@
 #    By: avast <avast@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/10 11:41:55 by avast             #+#    #+#              #
-#    Updated: 2023/03/31 11:17:27 by avast            ###   ########.fr        #
+#    Updated: 2023/03/31 18:43:55 by avast            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = philo
 
-SRC = src/parsing.c \
+SRC = src/initialization.c \
 	src/utils.c \
-	src/routine.c \
+	src/threads.c \
 	src/main.c
 
 OBJ = $(SRC:.c=.o)
