@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:25:17 by avast             #+#    #+#             */
-/*   Updated: 2023/03/29 12:14:46 by avast            ###   ########.fr       */
+/*   Updated: 2023/03/31 11:13:09 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,10 @@ int	is_valid_arg(char **av)
 	return (1);
 }
 
-void	init_data(t_data *data, int ac, char **av)
+int	init_data(t_data *data, int ac, char **av)
 {
+	int	i;
+
 	data->nb_philo = ft_atoi(av[1]);
 	data->time_to_die = ft_atoi(av[2]);
 	data->time_to_eat = ft_atoi(av[3]);
@@ -65,4 +67,31 @@ void	init_data(t_data *data, int ac, char **av)
 	else
 		data->nb_meals = 0;
 	pthread_mutex_init(&(data->lock_printf), NULL);
+	data->lock_fork = malloc(sizeof(pthread_mutex_t) * data->nb_philo);
+	if (!data->lock_fork)
+		return (-1);
+	i = 0;
+	while (i < data->nb_philo)
+	{
+		pthread_mutex_init(&(data->lock_fork[i]), NULL);
+		i++;
+	}
+	return (0);
+}
+
+t_philo	**init_philo(t_data *data, t_philo **philo)
+{
+	int		i;
+
+	*philo = malloc(sizeof(t_philo) * data->nb_philo);
+	if (!*philo)
+		return (NULL);
+	i = 0;
+	while (i < data->nb_philo)
+	{
+		(*philo)[i].data = data;
+		(*philo)[i].index = i;
+		i++;
+	}
+	return (philo);
 }

@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/09 17:52:28 by avast             #+#    #+#             */
-/*   Updated: 2023/03/29 12:21:02 by avast            ###   ########.fr       */
+/*   Updated: 2023/03/31 11:06:49 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,22 +27,27 @@ typedef struct s_data
 	int				time_to_sleep;
 	int				nb_meals;
 	pthread_mutex_t	lock_printf;
+	pthread_mutex_t	*lock_fork;
 }		t_data;
 
 typedef struct s_philo
 {
-	int				id;
-	pthread_t		thread;
-	struct s_philo	*right;
-	struct s_philo	*left;
+	int			index;
+	pthread_t	thread;
+	t_data		*data;
 }		t_philo;
 
 /* PARSING */
 int		is_valid_arg(char **av);
 int		number_length(char *str);
-void	init_data(t_data *data, int ac, char **av);
+int		init_data(t_data *data, int ac, char **av);
+t_philo	**init_philo(t_data *data, t_philo **philo);
+
+/* ROUTINE */
+void	*routine(void *arg);
 
 /* UTILS */
+void	free_data(t_data data, t_philo *philo);
 void	ft_putstr_fd(char *s, int fd);
 int		ft_atoi(const char *nptr);
 

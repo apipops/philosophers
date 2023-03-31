@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:31:51 by avast             #+#    #+#             */
-/*   Updated: 2023/03/29 11:35:55 by avast            ###   ########.fr       */
+/*   Updated: 2023/03/31 11:06:42 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,4 +46,10 @@ int	ft_atoi(const char *nptr)
 		i++;
 	}
 	return ((int)(n * sign));
+}
+
+void	free_data(t_data data, t_philo *philo)
+{
+	free(data.lock_fork);
+	free(philo);
 }
