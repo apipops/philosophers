@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:25:17 by avast             #+#    #+#             */
-/*   Updated: 2023/03/31 11:13:09 by avast            ###   ########.fr       */
+/*   Updated: 2023/03/31 12:31:09 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,9 +63,9 @@ int	init_data(t_data *data, int ac, char **av)
 	data->time_to_eat = ft_atoi(av[3]);
 	data->time_to_sleep = ft_atoi(av[4]);
 	if (ac == 6)
-		data->nb_meals = ft_atoi(av[5]);
+		data->meal_max = ft_atoi(av[5]);
 	else
-		data->nb_meals = 0;
+		data->meal_max = 0;
 	pthread_mutex_init(&(data->lock_printf), NULL);
 	data->lock_fork = malloc(sizeof(pthread_mutex_t) * data->nb_philo);
 	if (!data->lock_fork)
@@ -91,6 +91,8 @@ t_philo	**init_philo(t_data *data, t_philo **philo)
 	{
 		(*philo)[i].data = data;
 		(*philo)[i].index = i;
+		(*philo)[i].meals = 0;
+		pthread_mutex_init(&(*philo)[i].lock_time, NULL);
 		i++;
 	}
 	return (philo);

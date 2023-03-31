@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:14:21 by avast             #+#    #+#             */
-/*   Updated: 2023/03/31 11:13:41 by avast            ###   ########.fr       */
+/*   Updated: 2023/03/31 12:51:54 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,36 @@ void	read_data(t_data data)
 	printf("Time to die = %d\n", data.time_to_die);
 	printf("Time to eat = %d\n", data.time_to_eat);
 	printf("Time to sleep = %d\n", data.time_to_sleep);
-	printf("Nb meals = %d\n", data.nb_meals);
+	printf("Nb meals = %d\n", data.meal_max);
+}
+
+int	check_deaths(t_data data, t_philo *philo)
+{
+	int		i;
+	long	timestamp;
+
+	i = 0;
+	while (i < data.nb_philo)
+	{
+		pthread_mutex_lock(&(philo->data->lock_printf));
+		printf("JE PASSE ICI\n");
+		pthread_mutex_unlock(&(philo->data->lock_printf));
+		pthread_mutex_lock(&(philo[i].lock_time));
+		timestamp = get_time() - philo[i].start_time;
+		pthread_mutex_unlock(&(philo[i].lock_time));
+		pthread_mutex_lock(&(philo->data->lock_printf));
+		printf("Timestamp = %ld\n", timestamp);
+		pthread_mutex_unlock(&(philo->data->lock_printf));
+		if (timestamp >= data.time_to_die)
+		{
+			pthread_mutex_lock(&(philo->data->lock_printf));
+			printf("Philo #%d has died\n", i + 1);
+			pthread_mutex_unlock(&(philo->data->lock_printf));
+			return (1);
+		}
+		i++;
+	}
+	return (0);
 }
 
 int	main(int ac, char **av)
@@ -43,6 +72,20 @@ int	main(int ac, char **av)
 	{
 		pthread_join(philo[i].thread, NULL);
 		i++;
+	}
+	while (1)
+	{
+		if (check_deaths(data, philo))
+		{
+			i = 0;
+			while (i < data.nb_philo)
+			{
+				pthread_detach(philo[i].thread);
+				i++;
+			}
+			break ;
+		}
+		usleep(5 * 100);
 	}
 	free_data(data, philo);
 	return (0);

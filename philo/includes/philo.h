@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/09 17:52:28 by avast             #+#    #+#             */
-/*   Updated: 2023/03/31 11:06:49 by avast            ###   ########.fr       */
+/*   Updated: 2023/03/31 12:31:46 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <pthread.h>
 # include <unistd.h>
 # include <string.h>
+# include <sys/time.h>
 
 typedef struct s_data
 {
@@ -25,16 +26,19 @@ typedef struct s_data
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
-	int				nb_meals;
+	int				meal_max;
 	pthread_mutex_t	lock_printf;
 	pthread_mutex_t	*lock_fork;
 }		t_data;
 
 typedef struct s_philo
 {
-	int			index;
-	pthread_t	thread;
-	t_data		*data;
+	int				index;
+	pthread_t		thread;
+	int				meals;
+	long			start_time;
+	pthread_mutex_t	lock_time;
+	t_data			*data;
 }		t_philo;
 
 /* PARSING */
@@ -50,5 +54,6 @@ void	*routine(void *arg);
 void	free_data(t_data data, t_philo *philo);
 void	ft_putstr_fd(char *s, int fd);
 int		ft_atoi(const char *nptr);
+long	get_time(void);
 
 #endif
