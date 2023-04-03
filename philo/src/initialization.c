@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:25:17 by avast             #+#    #+#             */
-/*   Updated: 2023/04/03 13:39:43 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/03 13:59:48 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,14 +87,16 @@ t_philo	**init_philo(t_data *data, t_philo **philo)
 	while (i < data->nb_philo)
 	{
 		(*philo)[i].index = i;
-/* 		if (i == data->nb_philo - 1)
+		if (i == data->nb_philo - 1)
 		{
 			(*philo)[i].first_f = 0;
 			(*philo)[i].second_f = i;
 		}
-		else */
-		(*philo)[i].first_f = i;
-		(*philo)[i].second_f = (i + 1) % data->nb_philo;
+		else 
+		{
+			(*philo)[i].first_f = i;
+			(*philo)[i].second_f = (i + 1) % data->nb_philo;
+		}
 		(*philo)[i].meal_count = 0;
 		(*philo)[i].data = data;
 		i++;

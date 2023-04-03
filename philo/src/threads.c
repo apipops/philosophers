@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/31 17:37:50 by avast             #+#    #+#             */
-/*   Updated: 2023/04/03 13:45:38 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/03 14:10:33 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,6 @@ void	*routine(void *arg)
 		if (data->flag_death)
 		{
 			pthread_mutex_unlock(&(data->lock_check));
-			pthread_mutex_lock(&(data->lock_printf));
-			printf("je suis philo #%d et je passe ici\n", philo->index + 1);
-			pthread_mutex_unlock(&(data->lock_printf));
 			break ;
 		}
 		pthread_mutex_unlock(&(data->lock_check));

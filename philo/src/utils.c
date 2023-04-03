@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:31:51 by avast             #+#    #+#             */
-/*   Updated: 2023/04/03 13:30:55 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/03 14:10:06 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,8 @@ void	sleep_precise(long long timestamp)
 void	printf_msg(int type, t_philo *philo)
 {
 
-	//pthread_mutex_lock(&(philo->data->lock_check));
-	if (type != DIED)
+	pthread_mutex_lock(&(philo->data->lock_check));
+	if (type != DIED && !philo->data->flag_death)
 	{
 		pthread_mutex_lock(&(philo->data->lock_printf));
 		printf("%lld ", get_time() - philo->data->start_time);
@@ -94,5 +94,5 @@ void	printf_msg(int type, t_philo *philo)
 		printf("%d died\n", philo->index + 1);
 		pthread_mutex_unlock(&(philo->data->lock_printf));
 	}
-	//pthread_mutex_unlock(&(philo->data->lock_check));
+	pthread_mutex_unlock(&(philo->data->lock_check));
 }
