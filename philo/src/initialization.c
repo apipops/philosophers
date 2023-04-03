@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:25:17 by avast             #+#    #+#             */
-/*   Updated: 2023/04/03 13:59:48 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/03 14:45:15 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,10 +92,10 @@ t_philo	**init_philo(t_data *data, t_philo **philo)
 			(*philo)[i].first_f = 0;
 			(*philo)[i].second_f = i;
 		}
-		else 
+		else
 		{
 			(*philo)[i].first_f = i;
-			(*philo)[i].second_f = (i + 1) % data->nb_philo;
+			(*philo)[i].second_f = i + 1;
 		}
 		(*philo)[i].meal_count = 0;
 		(*philo)[i].data = data;
@@ -107,7 +107,7 @@ t_philo	**init_philo(t_data *data, t_philo **philo)
 int	init_data(t_data *data, int ac, char **av)
 {
 	data->nb_philo = ft_atoi(av[1]);
-	if (data->nb_philo < 2)
+	if (data->nb_philo < 2 || data->nb_philo > 500)
 		return (ft_putstr_fd("Invalid arguments.\n", 2), -1);
 	data->time_die = ft_atoi(av[2]);
 	data->time_eat = ft_atoi(av[3]);

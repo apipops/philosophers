@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:14:21 by avast             #+#    #+#             */
-/*   Updated: 2023/04/03 14:06:19 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/03 14:51:57 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int	check_philo(t_data *data)
 			if (get_time() - data->philo[i].last_meal > data->time_die)
 			{
 				pthread_mutex_lock(&data->lock_check);
-				data->flag_death = 1;
+				data->flag_death++;
 				pthread_mutex_unlock(&data->lock_check);
 				printf_msg(DIED, &data->philo[i]);
 			}
@@ -46,12 +46,17 @@ int	check_philo(t_data *data)
 			break ;
 		pthread_mutex_unlock(&data->lock_check);
 		i = 0;
+		pthread_mutex_lock(&(data->lock_check));
 		while (data->meal_max && i < data->nb_philo
 			&& data->philo[i].meal_count < data->meal_max)
 			i++;
 		if (i == data->nb_philo)
+		{
+			data->flag_eat = 1;
 			break ;
-		usleep(20);
+		}
+		pthread_mutex_unlock(&(data->lock_check));
+		usleep(200);
 	}
 	pthread_mutex_unlock(&(data->lock_check));
 	return (0);

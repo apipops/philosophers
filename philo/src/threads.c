@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/31 17:37:50 by avast             #+#    #+#             */
-/*   Updated: 2023/04/03 14:10:33 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/03 15:06:11 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,9 @@ void	eat_function(t_data *data, t_philo *philo)
 	philo->last_meal = get_time();
 	pthread_mutex_unlock(&(data->lock_time[philo->index]));
 	sleep_precise(data->time_eat);
+	pthread_mutex_lock(&(data->lock_check));
 	philo->meal_count++;
+	pthread_mutex_unlock(&(data->lock_check));
 	pthread_mutex_unlock(&(data->lock_fork[philo->second_f]));
 	pthread_mutex_unlock(&(data->lock_fork[philo->first_f]));
 }
@@ -36,7 +38,8 @@ void	*routine(void *arg)
 	data = philo->data;
 	// Condition pour eviter les deadlocks
 	if (philo->index % 2 == 0)
-		usleep(500);
+		usleep(1000);
+	// en fonction de time to die ? : 0 ttd * 2 
 	while (1)
 	{
 		// Manger
@@ -48,10 +51,10 @@ void	*routine(void *arg)
 		
 		// Penser
 		printf_msg(THINKING, philo);
-		usleep(100);
+		usleep(1000);
 
 		pthread_mutex_lock(&(data->lock_check));
-		if (data->flag_death)
+		if (data->flag_death || data->flag_eat)
 		{
 			pthread_mutex_unlock(&(data->lock_check));
 			break ;
