@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:25:17 by avast             #+#    #+#             */
-/*   Updated: 2023/03/31 19:09:32 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/03 13:39:43 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,10 +63,14 @@ int	init_mutex(t_data *data)
 	data->lock_fork = malloc(sizeof(pthread_mutex_t) * data->nb_philo);
 	if (!data->lock_fork)
 		return (ft_putstr_fd("Malloc failed.\n", 2), -1);
+	data->lock_time = malloc(sizeof(pthread_mutex_t) * data->nb_philo);
+	if (!data->lock_time)
+		return (free(data->lock_fork), ft_putstr_fd("Malloc failed.\n", 2), -1);
 	i = 0;
 	while (i < data->nb_philo)
 	{
 		pthread_mutex_init(&(data->lock_fork[i]), NULL);
+		pthread_mutex_init(&(data->lock_time[i]), NULL);
 		i++;
 	}
 	return (0);
@@ -83,8 +87,14 @@ t_philo	**init_philo(t_data *data, t_philo **philo)
 	while (i < data->nb_philo)
 	{
 		(*philo)[i].index = i;
-		(*philo)[i].left_f = i;
-		(*philo)[i].right_f = (i + 1) % data->nb_philo;
+/* 		if (i == data->nb_philo - 1)
+		{
+			(*philo)[i].first_f = 0;
+			(*philo)[i].second_f = i;
+		}
+		else */
+		(*philo)[i].first_f = i;
+		(*philo)[i].second_f = (i + 1) % data->nb_philo;
 		(*philo)[i].meal_count = 0;
 		(*philo)[i].data = data;
 		i++;
@@ -110,6 +120,6 @@ int	init_data(t_data *data, int ac, char **av)
 		return (-1);
 	data->philo = NULL;
 	if (!init_philo(data, &(data->philo)))
-		return (free(data->lock_fork), -1);
+		return (-1);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:14:21 by avast             #+#    #+#             */
-/*   Updated: 2023/03/31 18:36:09 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/03 12:42:47 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,29 +25,53 @@ int	check_philo(t_data *data)
 {
 	int		i;
 
-	while (!data->flag_death)
+	while (1)
 	{
 		i = 0;
 		while (i < data->nb_philo)
 		{
-			pthread_mutex_lock(&(data->lock_check));
+			pthread_mutex_lock(&data->lock_time[i]);
 			if (get_time() - data->philo[i].last_meal > data->time_die)
+			{
+				pthread_mutex_lock(&data->lock_check);
 				data->flag_death = 1;
-			pthread_mutex_unlock(&(data->lock_check));
-			usleep(10);
+				pthread_mutex_unlock(&data->lock_check);
+				printf_msg(DIED, &data->philo[i]);
+			}
+			pthread_mutex_unlock(&data->lock_time[i]);
 			i++;
 		}
+		pthread_mutex_lock(&data->lock_check);
 		if (data->flag_death)
 			break ;
+		pthread_mutex_unlock(&data->lock_check);
 		i = 0;
 		while (data->meal_max && i < data->nb_philo
 			&& data->philo[i].meal_count < data->meal_max)
 			i++;
 		if (i == data->nb_philo)
-			data->flag_eat = 1;
+			break ;
+		usleep(20);
 	}
+	pthread_mutex_unlock(&(data->lock_check));
 	return (0);
 }
+
+void	join_and_free(t_data data)
+{
+	int	i;
+
+	i = 0;
+	while (i < data.nb_philo)
+	{
+		pthread_join(data.philo[i].thread, NULL);
+		i++;
+	}
+	free(data.lock_fork);
+	free(data.philo);
+}
+
+
 
 int	main(int ac, char **av)
 {
@@ -61,6 +85,6 @@ int	main(int ac, char **av)
 	if (launch_threads(&data) == -1)
 		return (ft_putstr_fd("Thread init error.\n", 2), -1);
 	check_philo(&data);
-	free_data(data);
+	join_and_free(data);
 	return (0);
 }

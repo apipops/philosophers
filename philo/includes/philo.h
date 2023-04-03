@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/09 17:52:28 by avast             #+#    #+#             */
-/*   Updated: 2023/03/31 18:34:01 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/03 13:23:16 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ typedef struct s_data
 	int				flag_eat;
 	pthread_mutex_t	lock_printf;
 	pthread_mutex_t	lock_check;
+	pthread_mutex_t	*lock_time;
 	pthread_mutex_t	*lock_fork;
 	struct s_philo	*philo;
 }		t_data;
@@ -46,8 +47,8 @@ typedef struct s_philo
 {
 	int				index;
 	pthread_t		thread;
-	int				left_f;
-	int				right_f;
+	int				first_f;
+	int				second_f;
 	int				meal_count;
 	long long		last_meal;
 	t_data			*data;
@@ -74,5 +75,6 @@ void		ft_putstr_fd(char *s, int fd);
 int			ft_atoi(const char *nptr);
 long long	get_time(void);
 void		printf_msg(int type, t_philo *philo);
+void		sleep_precise(long long timestamp);
 
 #endif
