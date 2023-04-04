@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   initialization.c                                   :+:      :+:    :+:   */
+/*   init_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:25:17 by avast             #+#    #+#             */
-/*   Updated: 2023/04/04 15:29:17 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/04 18:09:22 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/philo.h"
+#include "../includes/philo_bonus.h"
 
 int	is_valid_arg(char **av)
 {
@@ -40,19 +40,21 @@ int	is_valid_arg(char **av)
 	return (1);
 }
 
-int	init_mutex(t_data *data)
+int	init_semaphores(t_data *data)
 {
-	int	i;
-
-	pthread_mutex_init(&(data->lock_printf), NULL);
-	pthread_mutex_init(&(data->lock_check), NULL);
-	i = 0;
-	while (i < data->nb_philo)
-	{
-		pthread_mutex_init(&(data->lock_fork[i]), NULL);
-		pthread_mutex_init(&(data->lock_time[i]), NULL);
-		i++;
-	}
+	data->lock_check = sem_open(LOCK_CHECK, O_CREAT, O_RDWR, 1);
+	if (data->lock_check == SEM_FAILED)
+		return (-1);
+	data->lock_printf = sem_open(LOCK_PRINTF, O_CREAT, O_RDWR, 1);
+	if (data->lock_check == SEM_FAILED)
+		return (sem_close(data->lock_check), -1);
+	data->lock_time = sem_open(LOCK_TIME, O_CREAT, O_RDWR, 1);
+	if (data->lock_check == SEM_FAILED)
+		return (sem_close(data->lock_check), sem_close(data->lock_time), -1);
+	data->lock_fork = sem_open(LOCK_FORK, O_CREAT, O_RDWR, data->nb_philo);
+	if (data->lock_check == SEM_FAILED)
+		return (sem_close(data->lock_check), sem_close(data->lock_time),
+			sem_close(data->lock_time), -1);
 	return (0);
 }
 
@@ -64,16 +66,6 @@ int	init_philo(t_data *data)
 	while (i < data->nb_philo)
 	{
 		data->philo[i].index = i;
-		if (i == data->nb_philo - 1)
-		{
-			data->philo[i].first_f = 0;
-			data->philo[i].second_f = i;
-		}
-		else
-		{
-			data->philo[i].first_f = i;
-			data->philo[i].second_f = i + 1;
-		}
 		data->philo[i].meal_count = 0;
 		data->philo[i].data = data;
 		i++;
@@ -95,7 +87,8 @@ int	init_data(t_data *data, int ac, char **av)
 		data->meal_max = 0;
 	data->flag_death = 0;
 	data->flag_eat = 0;
-	init_mutex(data);
+	if (init_semaphore(data) == -1)
+		return (write(2, "Semaphore creation failed.\n", 27), -1);
 	init_philo(data);
 	return (0);
 }

@@ -6,15 +6,15 @@
 #    By: avast <avast@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/10 11:41:55 by avast             #+#    #+#              #
-#    Updated: 2023/04/04 16:08:05 by avast            ###   ########.fr        #
+#    Updated: 2023/04/04 17:55:39 by avast            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = philo
+NAME = philo_bonus
 
-SRC = src/init.c \
-	src/utils.c \
-	src/threads.c \
+SRC = src/init_bonus.c \
+	src/utils_bonus.c \
+	src/threads_bonus.c \
 	src/main.c
 
 OBJ = $(SRC:.c=.o)
