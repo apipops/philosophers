@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/31 17:37:50 by avast             #+#    #+#             */
-/*   Updated: 2023/04/03 15:06:11 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/04 15:40:53 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,23 +36,15 @@ void	*routine(void *arg)
 
 	philo = (t_philo *)arg;
 	data = philo->data;
-	// Condition pour eviter les deadlocks
 	if (philo->index % 2 == 0)
-		usleep(1000);
-	// en fonction de time to die ? : 0 ttd * 2 
+		sleep_precise(1);
 	while (1)
 	{
-		// Manger
 		eat_function(data, philo);
-
-		// Dormir
 		printf_msg(SLEEPING, philo);
 		sleep_precise(data->time_sleep);
-		
-		// Penser
 		printf_msg(THINKING, philo);
-		usleep(1000);
-
+		sleep_precise(1);
 		pthread_mutex_lock(&(data->lock_check));
 		if (data->flag_death || data->flag_eat)
 		{
@@ -73,9 +65,7 @@ int	launch_threads(t_data *data)
 	philo = data->philo;
 	while (i < data->nb_philo)
 	{
-		//pthread_mutex_lock(&(data->lock_check));
 		philo[i].last_meal = get_time();
-		//pthread_mutex_unlock(&(data->lock_check));
 		if (pthread_create(&philo[i].thread, NULL, &routine, &philo[i]))
 			return (-1);
 		i++;

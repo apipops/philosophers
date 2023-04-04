@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/09 17:52:28 by avast             #+#    #+#             */
-/*   Updated: 2023/04/03 13:23:16 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/04 16:03:30 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,17 @@
 # define THINKING 4
 # define DIED 5
 
+typedef struct s_philo
+{
+	int				index;
+	pthread_t		thread;
+	int				first_f;
+	int				second_f;
+	int				meal_count;
+	long long		last_meal;
+	struct s_data	*data;
+}		t_philo;
+
 typedef struct s_data
 {
 	int				nb_philo;
@@ -38,29 +49,20 @@ typedef struct s_data
 	int				flag_eat;
 	pthread_mutex_t	lock_printf;
 	pthread_mutex_t	lock_check;
-	pthread_mutex_t	*lock_time;
-	pthread_mutex_t	*lock_fork;
-	struct s_philo	*philo;
+	pthread_mutex_t	lock_time[250];
+	pthread_mutex_t	lock_fork[250];
+	t_philo			philo[250];
 }		t_data;
 
-typedef struct s_philo
-{
-	int				index;
-	pthread_t		thread;
-	int				first_f;
-	int				second_f;
-	int				meal_count;
-	long long		last_meal;
-	t_data			*data;
-}		t_philo;
-
 /* MAIN */
+void		check_death(t_data *data);
 int			check_philo(t_data *data);
+void		join_philo(t_data data);
 
 /* INITIALIZATION */
 int			init_data(t_data *data, int ac, char **av);
 int			init_mutex(t_data *data);
-t_philo		**init_philo(t_data *data, t_philo **philo);
+int			init_philo(t_data *data);
 int			is_valid_arg(char **av);
 int			number_length(char *str);
 
