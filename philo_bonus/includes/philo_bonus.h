@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/09 17:52:28 by avast             #+#    #+#             */
-/*   Updated: 2023/04/04 18:02:49 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/05 10:50:06 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ typedef struct s_data
 /* MAIN */
 void		check_death(t_data *data);
 int			check_philo(t_data *data);
-void		join_philo(t_data data);
+void		join_and_free(t_data data);
 
 /* INITIALIZATION */
 int			init_data(t_data *data, int ac, char **av);

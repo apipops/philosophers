@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:14:21 by avast             #+#    #+#             */
-/*   Updated: 2023/04/04 16:04:06 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/05 10:50:06 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int	check_philo(t_data *data)
 	return (0);
 }
 
-void	join_philo(t_data data)
+void	join_and_free(t_data data)
 {
 	int	i;
 
@@ -84,6 +84,6 @@ int	main(int ac, char **av)
 	if (launch_threads(&data) == -1)
 		return (write(2, "Thread creation failed.\n", 24), -1);
 	check_philo(&data);
-	join_philo(data);
+	join_and_free(data);
 	return (0);
 }

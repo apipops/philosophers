@@ -6,7 +6,7 @@
 #    By: avast <avast@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/10 11:41:55 by avast             #+#    #+#              #
-#    Updated: 2023/04/04 16:08:05 by avast            ###   ########.fr        #
+#    Updated: 2023/04/05 10:13:00 by avast            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,10 +40,10 @@ YELLOW = \033[1;93m
 all: $(NAME)
 
 %.o: %.c
-	@$(CC) $(FLAGS) $(SANITIZE) -I./includes -c $< -o $@
+	@$(CC) $(FLAGS) -I./includes -c $< -o $@
 
 $(NAME): $(OBJ) $(LIBFT) $(INCLUDES)
-	@$(CC) $(FLAGS) $(SANITIZE) $(OBJ) -o $(NAME)
+	@$(CC) $(FLAGS) $(OBJ) -o $(NAME)
 	@printf "$(YELLOW)------Compilation executed------\n\n"
 
 

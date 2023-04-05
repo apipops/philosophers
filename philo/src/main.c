@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:14:21 by avast             #+#    #+#             */
-/*   Updated: 2023/04/04 16:04:06 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/05 11:02:48 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,7 @@ int	check_philo(t_data *data)
 		pthread_mutex_lock(&data->lock_check);
 		if (data->flag_death)
 			break ;
-		pthread_mutex_unlock(&data->lock_check);
 		i = 0;
-		pthread_mutex_lock(&(data->lock_check));
 		while (data->meal_max && i < data->nb_philo
 			&& data->philo[i].meal_count >= data->meal_max)
 			i++;
@@ -60,7 +58,7 @@ int	check_philo(t_data *data)
 	return (0);
 }
 
-void	join_philo(t_data data)
+void	join_and_free(t_data data)
 {
 	int	i;
 
@@ -70,6 +68,16 @@ void	join_philo(t_data data)
 		pthread_join(data.philo[i].thread, NULL);
 		i++;
 	}
+	i = 0;
+	while (i < data.nb_philo)
+	{
+		pthread_mutex_destroy(&data.lock_fork[i]);
+		pthread_mutex_destroy(&data.lock_time[i]);
+		i++;
+	}
+	free(data.philo);
+	free(data.lock_fork);
+	free(data.lock_time);
 }
 
 int	main(int ac, char **av)
@@ -84,6 +92,6 @@ int	main(int ac, char **av)
 	if (launch_threads(&data) == -1)
 		return (write(2, "Thread creation failed.\n", 24), -1);
 	check_philo(&data);
-	join_philo(data);
+	join_and_free(data);
 	return (0);
 }

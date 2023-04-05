@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/31 17:37:50 by avast             #+#    #+#             */
-/*   Updated: 2023/04/04 15:40:53 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/05 11:02:27 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void	*routine(void *arg)
 	philo = (t_philo *)arg;
 	data = philo->data;
 	if (philo->index % 2 == 0)
-		sleep_precise(1);
+		sleep_precise(2);
 	while (1)
 	{
 		eat_function(data, philo);
@@ -65,7 +65,9 @@ int	launch_threads(t_data *data)
 	philo = data->philo;
 	while (i < data->nb_philo)
 	{
+		pthread_mutex_lock(&data->lock_time[i]);
 		philo[i].last_meal = get_time();
+		pthread_mutex_unlock(&data->lock_time[i]);
 		if (pthread_create(&philo[i].thread, NULL, &routine, &philo[i]))
 			return (-1);
 		i++;
