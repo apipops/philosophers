@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:25:17 by avast             #+#    #+#             */
-/*   Updated: 2023/04/05 15:35:11 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/05 16:02:29 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,22 +42,29 @@ int	is_valid_arg(char **av)
 
 int	init_semaphores(t_data *data)
 {
-	sem_unlink(CHECK_MEAL);
 	sem_unlink(LOCK_PRINTF);
-	sem_unlink(CHECK_DEATH);
 	sem_unlink(LOCK_FORK);
+	sem_unlink(CHECK_MEAL);
+	sem_unlink(CHECK_DEATH);
 	sem_unlink(TOTAL_MEALS);
 	sem_unlink(FREE_DEATH);
 	data->lock_printf = sem_open(LOCK_PRINTF, O_CREAT, S_IRWXO, 1);
 	data->lock_fork = sem_open(LOCK_FORK, O_CREAT, S_IRWXO, data->nb_philo);
 	data->check_death = sem_open(CHECK_DEATH, O_CREAT, S_IRWXO, 1);
 	data->check_meal = sem_open(CHECK_MEAL, O_CREAT, S_IRWXO, 1);
-	data->total_meals = sem_open(CHECK_MEAL, O_CREAT, S_IRWXO, 0);
-	data->free_death = sem_open(CHECK_MEAL, O_CREAT, S_IRWXO, 0);
+	data->total_meals = sem_open(TOTAL_MEALS, O_CREAT, S_IRWXO, 0);
+	data->free_death = sem_open(FREE_DEATH, O_CREAT, S_IRWXO, 0);
 	if (data->lock_printf == SEM_FAILED || data->lock_fork == SEM_FAILED
 		|| data->check_death == SEM_FAILED || data->check_meal == SEM_FAILED
 		|| data->total_meals == SEM_FAILED || data->free_death == SEM_FAILED)
 		return (-1);
+	printf("address of check_death %p\n", data->check_death);
+/* 	printf("address of lock_primtf %p\n", data->check_death);
+	printf("address of check_death %p\n", data->check_death);
+	printf("address of check_death %p\n", data->check_death);
+	printf("address of check_death %p\n", data->check_death);
+	printf("address of check_death %p\n", data->check_death);
+	printf("address of check_death %p\n", data->check_death); */
 	return (0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:14:21 by avast             #+#    #+#             */
-/*   Updated: 2023/04/05 15:38:49 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/05 15:54:51 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	wait_and_exit(t_data data)
 	while (i < data.nb_philo)
 	{
 		waitpid(-1, &status, 0);
-		if (WIFEXITED(status) && WEXITSTATUS(status) < 200)
+/* 		if (WIFEXITED(status) && WEXITSTATUS(status) < 200)
 		{
 			i = 0;
 			while (i < data.nb_philo)
@@ -32,7 +32,7 @@ void	wait_and_exit(t_data data)
 			}
 			printf_msg(DIED, &data.philo[WEXITSTATUS(status)]);
 			break ;
-		}
+		} */
 		i++;
 	}
 	free_semaphores(data);

@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/31 17:37:50 by avast             #+#    #+#             */
-/*   Updated: 2023/04/05 15:41:31 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/05 16:09:39 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,17 +21,22 @@ void	*check_philo(void *arg)
 	data = philo->data;
 	while (1)
 	{
+		//printf("address of check_death %p\n", data->check_death);
 		sem_wait(data->check_death);
 		if ((get_time() - philo->last_meal) >= data->time_die)
 		{
 			sem_post(data->check_death);
 			//printf("je passe ici car je meurs et mon index est %d\n", philo->index);
-			exit (philo->index);
+			sem_post(data->free_death);
+			printf_msg(DIED, philo);
+			//exit (philo->index);
 		}
 		(sem_post(data->check_death), sem_wait(data->check_meal));
 		if (data->meal_max && philo->meal_count >= data->meal_max)
+			sem_post(data->total_meals);
+		if (data->meal_max && data->total_meals->__align == data->meal_max)
 			(sem_post(data->check_meal), exit (201));
-		(sem_post(data->check_meal), sleep_precise(1));
+		(sem_post(data->check_meal), sleep_precise(100));
 	}
 }
 
@@ -44,8 +49,8 @@ void	*exit_death(void *arg)
 	data = philo->data;
 	sem_wait(data->free_death);
 	sem_post(data->check_death);
-	printf("MESSAGE MORT");
 	free_semaphores(*data);
+	pthread_
 	exit(philo->index);
 }
 
@@ -76,6 +81,7 @@ int	fork_philo(t_data *data, t_philo *philo, int i)
 	if (pid == 0)
 	{
 		pthread_create(&philo->thread_check, NULL, &check_philo, &philo[i]);
+		pthread_create(&philo->thread_free, NULL, &exit_death, &philo[i]);
 		if (i % 2 == 0)
 			sleep_precise(1);
 		while (1)
