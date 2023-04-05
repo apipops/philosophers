@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/09 17:52:28 by avast             #+#    #+#             */
-/*   Updated: 2023/04/05 10:50:06 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/05 12:38:35 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,6 @@ int			launch_threads(t_data *data);
 void		*routine(void *arg);
 
 /* UTILS */
-void		free_data(t_data data);
 void		ft_putstr_fd(char *s, int fd);
 int			ft_atoi(const char *nptr);
 long long	get_time(void);

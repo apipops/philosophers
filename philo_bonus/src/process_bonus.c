@@ -6,48 +6,67 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/31 17:37:50 by avast             #+#    #+#             */
-/*   Updated: 2023/04/04 18:20:34 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/05 15:41:31 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo_bonus.h"
 
-void	eat_function(t_data *data, t_philo *philo)
+void	*check_philo(void *arg)
 {
-	pthread_mutex_lock(&(data->lock_fork[philo->first_f]));
-	printf_msg(FORK, philo);
-	pthread_mutex_lock(&(data->lock_fork[philo->second_f]));
-	printf_msg(EATING, philo);
-	pthread_mutex_lock(&(data->lock_time[philo->index]));
-	philo->last_meal = get_time();
-	pthread_mutex_unlock(&(data->lock_time[philo->index]));
-	sleep_precise(data->time_eat);
-	pthread_mutex_lock(&(data->lock_check));
-	philo->meal_count++;
-	pthread_mutex_unlock(&(data->lock_check));
-	pthread_mutex_unlock(&(data->lock_fork[philo->second_f]));
-	pthread_mutex_unlock(&(data->lock_fork[philo->first_f]));
-}
+	t_philo	*philo;
+	t_data	*data;
 
-void	routine_function(t_data *data, t_philo *philo)
-{
+	philo = (t_philo *)arg;
+	data = philo->data;
 	while (1)
 	{
-		sem_wait(data->lock_fork);
-		printf_msg(FORK, philo);
-		sem_wait(data->lock_fork);
-		printf_msg(EATING, philo);
-		sem_wait(data->lock_time);
-		philo->last_meal = get_time();
-		sem_post(data->lock_time);
-		sleep_precise(data->time_eat);
-		sem_wait(data->lock_check);
-		philo->meal_count++;
-		sem_post(data->lock_check);
+		sem_wait(data->check_death);
+		if ((get_time() - philo->last_meal) >= data->time_die)
+		{
+			sem_post(data->check_death);
+			//printf("je passe ici car je meurs et mon index est %d\n", philo->index);
+			exit (philo->index);
+		}
+		(sem_post(data->check_death), sem_wait(data->check_meal));
+		if (data->meal_max && philo->meal_count >= data->meal_max)
+			(sem_post(data->check_meal), exit (201));
+		(sem_post(data->check_meal), sleep_precise(1));
 	}
 }
 
-int	fork_philo(t_data *data, t_philo *philo)
+void	*exit_death(void *arg)
+{
+	t_philo	*philo;
+	t_data	*data;
+
+	philo = (t_philo *)arg;
+	data = philo->data;
+	sem_wait(data->free_death);
+	sem_post(data->check_death);
+	printf("MESSAGE MORT");
+	free_semaphores(*data);
+	exit(philo->index);
+}
+
+void	eat_function(t_data *data, t_philo *philo)
+{
+	sem_wait(data->lock_fork);
+	printf_msg(FORK, philo);
+	sem_wait(data->lock_fork);
+	printf_msg(EATING, philo);
+	sem_wait(data->check_death);
+	philo->last_meal = get_time();
+	sem_post(data->check_death);
+	sleep_precise(data->time_eat);
+	sem_wait(data->check_meal);
+	philo->meal_count++;
+	sem_post(data->check_meal);
+	sem_post(data->lock_fork);
+	sem_post(data->lock_fork);
+}
+
+int	fork_philo(t_data *data, t_philo *philo, int i)
 {
 	pid_t	pid;
 
@@ -56,24 +75,20 @@ int	fork_philo(t_data *data, t_philo *philo)
 		return (write(2, "Fork failed.\n", 13), -1);
 	if (pid == 0)
 	{
+		pthread_create(&philo->thread_check, NULL, &check_philo, &philo[i]);
+		if (i % 2 == 0)
+			sleep_precise(1);
 		while (1)
 		{
-			eat_function(data, philo);
-			printf_msg(SLEEPING, philo);
+			eat_function(data, &philo[i]);
+			printf_msg(SLEEPING, &philo[i]);
 			sleep_precise(data->time_sleep);
-			printf_msg(THINKING, philo);
+			printf_msg(THINKING, &philo[i]);
 			sleep_precise(1);
-			pthread_mutex_lock(&(data->lock_check));
-			if (data->flag_death || data->flag_eat)
-			{
-				pthread_mutex_unlock(&(data->lock_check));
-				break ;
-			}
-			pthread_mutex_unlock(&(data->lock_check));
 		}
 	}
-	philo->pid = pid;
-	return (NULL);
+	philo[i].pid = pid;
+	return (0);
 }
 
 int	launch_process(t_data *data)
@@ -86,7 +101,7 @@ int	launch_process(t_data *data)
 	while (i < data->nb_philo)
 	{
 		philo[i].last_meal = get_time();
-		if (pthread_create(&philo[i].thread, NULL, &routine, &philo[i]))
+		if (fork_philo(data, philo, i) == -1)
 			return (-1);
 		i++;
 	}

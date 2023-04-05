@@ -6,11 +6,11 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:31:51 by avast             #+#    #+#             */
-/*   Updated: 2023/04/04 16:08:36 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/05 12:10:13 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/philo.h"
+#include "../includes/philo_bonus.h"
 
 int	number_length(char *str)
 {
@@ -73,9 +73,8 @@ void	sleep_precise(long long timestamp)
 
 void	printf_msg(int type, t_philo *philo)
 {
-	pthread_mutex_lock(&(philo->data->lock_check));
-	pthread_mutex_lock(&(philo->data->lock_printf));
-	if (type != DIED && !philo->data->flag_death && !philo->data->flag_eat)
+	sem_wait(philo->data->lock_printf);
+	if (type != DIED)
 	{
 		printf("%lld ", get_time() - philo->data->start_time);
 		printf("%d ", philo->index + 1);
@@ -88,11 +87,10 @@ void	printf_msg(int type, t_philo *philo)
 		else if (type == THINKING)
 			printf("is thinking\n");
 	}
-	else if (type == DIED && philo->data->flag_death == 1)
+	else if (type == DIED)
 	{
 		printf("%lld ", get_time() - philo->data->start_time);
 		printf("%d died\n", philo->index + 1);
 	}
-	pthread_mutex_unlock(&(philo->data->lock_printf));
-	pthread_mutex_unlock(&(philo->data->lock_check));
+	sem_post(philo->data->lock_printf);
 }

@@ -6,70 +6,54 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:14:21 by avast             #+#    #+#             */
-/*   Updated: 2023/04/05 10:50:06 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/05 15:38:49 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/philo.h"
+#include "../includes/philo_bonus.h"
 
-void	check_death(t_data *data)
+void	wait_and_exit(t_data data)
 {
 	int	i;
+	int	status;
 
 	i = 0;
-	while (i < data->nb_philo)
-	{
-		pthread_mutex_lock(&data->lock_time[i]);
-		if (get_time() - data->philo[i].last_meal > data->time_die)
-		{
-			pthread_mutex_lock(&data->lock_check);
-			data->flag_death++;
-			pthread_mutex_unlock(&data->lock_check);
-			printf_msg(DIED, &data->philo[i]);
-		}
-		pthread_mutex_unlock(&data->lock_time[i]);
-		i++;
-	}
-}
-
-int	check_philo(t_data *data)
-{
-	int		i;
-
-	while (1)
-	{
-		check_death(data);
-		pthread_mutex_lock(&data->lock_check);
-		if (data->flag_death)
-			break ;
-		pthread_mutex_unlock(&data->lock_check);
-		i = 0;
-		pthread_mutex_lock(&(data->lock_check));
-		while (data->meal_max && i < data->nb_philo
-			&& data->philo[i].meal_count >= data->meal_max)
-			i++;
-		if (i == data->nb_philo)
-		{
-			data->flag_eat = 1;
-			break ;
-		}
-		pthread_mutex_unlock(&(data->lock_check));
-		sleep_precise(1);
-	}
-	pthread_mutex_unlock(&(data->lock_check));
-	return (0);
-}
-
-void	join_and_free(t_data data)
-{
-	int	i;
-
-	i = 0;
+	status = 0;
 	while (i < data.nb_philo)
 	{
-		pthread_join(data.philo[i].thread, NULL);
+		waitpid(-1, &status, 0);
+		if (WIFEXITED(status) && WEXITSTATUS(status) < 200)
+		{
+			i = 0;
+			while (i < data.nb_philo)
+			{
+				kill(data.philo[i].pid, SIGTERM);
+				i++;
+			}
+			printf_msg(DIED, &data.philo[WEXITSTATUS(status)]);
+			break ;
+		}
 		i++;
 	}
+	free_semaphores(data);
+	exit(0);
+}
+
+int	free_semaphores(t_data data)
+{
+	sem_close(data.lock_printf);
+	sem_close(data.lock_fork);
+	sem_close(data.check_meal);
+	sem_close(data.check_death);
+	sem_close(data.free_death);
+	sem_close(data.total_meals);
+	sem_unlink(LOCK_PRINTF);
+	sem_unlink(LOCK_FORK);
+	sem_unlink(CHECK_MEAL);
+	sem_unlink(CHECK_DEATH);
+	sem_unlink(FREE_DEATH);
+	sem_unlink(TOTAL_MEALS);
+	return (0);
 }
 
 int	main(int ac, char **av)
@@ -81,9 +65,8 @@ int	main(int ac, char **av)
 	if (init_data(&data, ac, av) == -1)
 		return (-1);
 	data.start_time = get_time();
-	if (launch_threads(&data) == -1)
-		return (write(2, "Thread creation failed.\n", 24), -1);
-	check_philo(&data);
-	join_and_free(data);
+	if (launch_process(&data) == -1)
+		return (-1);
+	wait_and_exit(data);
 	return (0);
 }

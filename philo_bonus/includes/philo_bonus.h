@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/09 17:52:28 by avast             #+#    #+#             */
-/*   Updated: 2023/04/05 10:50:06 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/05 15:32:36 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,12 @@
 # include <sys/stat.h>
 # include <semaphore.h>
 # include <sys/time.h>
+# include <signal.h>
+# include <sys/types.h>
+# include <sys/wait.h>
+# include <string.h>
+# include <errno.h>
+# include <stdio.h>
 
 # define FORK 1
 # define EATING 2
@@ -30,14 +36,18 @@
 # define DIED 5
 
 # define LOCK_PRINTF "/lock_printf"
-# define LOCK_CHECK "/lock_check"
-# define LOCK_TIME "/lock_time"
+# define CHECK_MEAL "/check_meal"
+# define CHECK_DEATH "/check_death"
 # define LOCK_FORK "/lock_fork"
+# define TOTAL_MEALS "/total_meals"
+# define FREE_DEATH "/free_death"
 
 typedef struct s_philo
 {
 	int				index;
 	pid_t			pid;
+	pthread_t		thread_check;
+	pthread_t		thread_free;
 	int				meal_count;
 	long long		last_meal;
 	struct s_data	*data;
@@ -51,19 +61,18 @@ typedef struct s_data
 	int			time_sleep;
 	int			meal_max;
 	long long	start_time;
-	int			flag_death;
-	int			flag_eat;
 	sem_t		*lock_printf;
-	sem_t		*lock_check;
-	sem_t		*lock_time;
 	sem_t		*lock_fork;
-	t_philo		philo[250];
+	sem_t		*check_meal;
+	sem_t		*check_death;
+	sem_t		*total_meals;
+	sem_t		*free_death;
+	t_philo		philo[200];
 }		t_data;
 
 /* MAIN */
-void		check_death(t_data *data);
-int			check_philo(t_data *data);
-void		join_and_free(t_data data);
+int			free_semaphores(t_data data);
+void		wait_and_exit(t_data data);
 
 /* INITIALIZATION */
 int			init_data(t_data *data, int ac, char **av);
@@ -72,13 +81,13 @@ int			init_philo(t_data *data);
 int			is_valid_arg(char **av);
 int			number_length(char *str);
 
-/* THREADS */
+/* PROCESS */
+void		*check_philo(void *arg);
+int			fork_philo(t_data *data, t_philo *philo, int i);
 void		eat_function(t_data *data, t_philo *philo);
-int			launch_threads(t_data *data);
-void		*routine(void *arg);
+int			launch_process(t_data *data);
 
 /* UTILS */
-void		free_data(t_data data);
 void		ft_putstr_fd(char *s, int fd);
 int			ft_atoi(const char *nptr);
 long long	get_time(void);

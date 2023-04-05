@@ -6,7 +6,7 @@
 /*   By: avast <avast@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 11:25:17 by avast             #+#    #+#             */
-/*   Updated: 2023/04/04 18:09:22 by avast            ###   ########.fr       */
+/*   Updated: 2023/04/05 15:35:11 by avast            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,19 +42,22 @@ int	is_valid_arg(char **av)
 
 int	init_semaphores(t_data *data)
 {
-	data->lock_check = sem_open(LOCK_CHECK, O_CREAT, O_RDWR, 1);
-	if (data->lock_check == SEM_FAILED)
+	sem_unlink(CHECK_MEAL);
+	sem_unlink(LOCK_PRINTF);
+	sem_unlink(CHECK_DEATH);
+	sem_unlink(LOCK_FORK);
+	sem_unlink(TOTAL_MEALS);
+	sem_unlink(FREE_DEATH);
+	data->lock_printf = sem_open(LOCK_PRINTF, O_CREAT, S_IRWXO, 1);
+	data->lock_fork = sem_open(LOCK_FORK, O_CREAT, S_IRWXO, data->nb_philo);
+	data->check_death = sem_open(CHECK_DEATH, O_CREAT, S_IRWXO, 1);
+	data->check_meal = sem_open(CHECK_MEAL, O_CREAT, S_IRWXO, 1);
+	data->total_meals = sem_open(CHECK_MEAL, O_CREAT, S_IRWXO, 0);
+	data->free_death = sem_open(CHECK_MEAL, O_CREAT, S_IRWXO, 0);
+	if (data->lock_printf == SEM_FAILED || data->lock_fork == SEM_FAILED
+		|| data->check_death == SEM_FAILED || data->check_meal == SEM_FAILED
+		|| data->total_meals == SEM_FAILED || data->free_death == SEM_FAILED)
 		return (-1);
-	data->lock_printf = sem_open(LOCK_PRINTF, O_CREAT, O_RDWR, 1);
-	if (data->lock_check == SEM_FAILED)
-		return (sem_close(data->lock_check), -1);
-	data->lock_time = sem_open(LOCK_TIME, O_CREAT, O_RDWR, 1);
-	if (data->lock_check == SEM_FAILED)
-		return (sem_close(data->lock_check), sem_close(data->lock_time), -1);
-	data->lock_fork = sem_open(LOCK_FORK, O_CREAT, O_RDWR, data->nb_philo);
-	if (data->lock_check == SEM_FAILED)
-		return (sem_close(data->lock_check), sem_close(data->lock_time),
-			sem_close(data->lock_time), -1);
 	return (0);
 }
 
@@ -76,7 +79,7 @@ int	init_philo(t_data *data)
 int	init_data(t_data *data, int ac, char **av)
 {
 	data->nb_philo = ft_atoi(av[1]);
-	if (data->nb_philo < 2 || data->nb_philo > 250)
+	if (data->nb_philo < 2 || data->nb_philo > 200)
 		return (write(2, "Invalid arguments.\n", 19), -1);
 	data->time_die = ft_atoi(av[2]);
 	data->time_eat = ft_atoi(av[3]);
@@ -85,9 +88,7 @@ int	init_data(t_data *data, int ac, char **av)
 		data->meal_max = ft_atoi(av[5]);
 	else
 		data->meal_max = 0;
-	data->flag_death = 0;
-	data->flag_eat = 0;
-	if (init_semaphore(data) == -1)
+	if (init_semaphores(data) == -1)
 		return (write(2, "Semaphore creation failed.\n", 27), -1);
 	init_philo(data);
 	return (0);
